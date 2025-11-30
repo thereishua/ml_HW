@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>招聘数据分析平台</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: #3498db;
+            background: #f1f8ff;
+        }
+
+        .upload-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            margin: 20px 0;
+        }
+
+        .file-input input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .analysis-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+
+        .analysis-card {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .analysis-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        .analysis-card h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .analysis-card p {
+            color: #6c757d;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+
+        .btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .requirements {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 20px 0;
+            font-size: 0.9em;
+        }
+
+        .requirements h4 {
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .loading {
+            display: none;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        @media (max-width: 768px) {
+            .analysis-section {
+                grid-template-columns: 1fr;
+            }
+
+            .content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 招聘数据分析平台</h1>
+            <p>上传CSV文件，获取专业的招聘数据分析报告</p>
+        </div>
+
+        <div class="content">
+            <div class="upload-section">
+                <h3>📁 上传招聘数据CSV文件</h3>
+                <p>支持标准的CSV格式文件，包含地区(discrict)、薪资(salary)、公司(company)等字段</p>
+
+                <div class="file-input">
+                    <input type="file" id="csvFile" accept=".csv">
+                </div>
+
+                <div class="requirements">
+                    <h4>📋 文件要求：</h4>
+                    <p>• 必须包含 district（地区）、salary（薪资）、company（公司名称）列</p>
+                    <p>• 文件编码建议使用 UTF-8</p>
+                </div>
+
+                <div id="fileInfo" style="margin-top: 15px; font-style: italic; color: #666;"></div>
+            </div>
+
+            <div class="analysis-section">
+                <div class="analysis-card">
+                    <h3>💰 薪资地区分析</h3>
+                    <p>按地区统计薪资的平均值、最小值、最大值，生成Excel分析报告</p>
+                    <button class="btn" onclick="analyzeSalary()" id="salaryBtn">
+                        开始分析
+                    </button>
+                    <div class="loading" id="salaryLoading">
+                        <div class="spinner"></div>
+                        <p>正在生成薪资分析报告...</p>
+                    </div>
+                </div>
+
+                <div class="analysis-card">
+                    <h3>🏢 公司分布分析</h3>
+                    <p>按地区统计公司数量，生成可视化柱状图</p>
+                    <button class="btn" onclick="analyzeCompany()" id="companyBtn">
+                        开始分析
+                    </button>
+                    <div class="loading" id="companyLoading">
+                        <div class="spinner"></div>
+                        <p>正在生成公司分布图...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="result" class="result"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentFile = null;
+
+        // 文件选择监听
+        document.getElementById('csvFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                currentFile = file;
+                document.getElementById('fileInfo').textContent =
+                    `已选择文件: ${file.name} (${(file.size / 1024).toFixed(2)} KB)`;
+
+                // 启用按钮
+                document.getElementById('salaryBtn').disabled = false;
+                document.getElementById('companyBtn').disabled = false;
+            }
+        });
+
+        // 显示结果消息
+        function showMessage(message, type) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.className = 'result ' + type;
+            resultDiv.innerHTML = message;
+            resultDiv.style.display = 'block';
+
+            setTimeout(() => {
+                resultDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // 按地区统计薪资
+        async function analyzeSalary() {
+            if (!currentFile) {
+                showMessage('请先选择CSV文件', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+
+            const loading = document.getElementById('salaryLoading');
+            const button = document.getElementById('salaryBtn');
+
+            loading.style.display = 'block';
+            button.disabled = true;
+
+            try {
+                const response = await fetch('/analyze/salary_by_district', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    // 下载文件
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = '各地区薪资统计.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    showMessage('✅ 薪资分析完成！Excel文件已开始下载', 'success');
+                } else {
+                    const error = await response.json();
+                    showMessage('❌ 分析失败: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ 请求失败: ' + error.message, 'error');
+            } finally {
+                loading.style.display = 'none';
+                button.disabled = false;
+            }
+        }
+
+        // 按地区公司数量统计
+        async function analyzeCompany() {
+            if (!currentFile) {
+                showMessage('请先选择CSV文件', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', currentFile);
+
+            const loading = document.getElementById('companyLoading');
+            const button = document.getElementById('companyBtn');
+
+            loading.style.display = 'block';
+            button.disabled = true;
+
+            try {
+                const response = await fetch('/analyze/company_count_chart', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    // 下载图片
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.style.display = 'none';
+                    a.href = url;
+                    a.download = '各地区公司数量统计图.png';
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    document.body.removeChild(a);
+
+                    showMessage('✅ 公司分布分析完成！图表文件已开始下载', 'success');
+                } else {
+                    const error = await response.json();
+                    showMessage('❌ 分析失败: ' + error.detail, 'error');
+                }
+            } catch (error) {
+                showMessage('❌ 请求失败: ' + error.message, 'error');
+            } finally {
+                loading.style.display = 'none';
+                button.disabled = false;
+            }
+        }
+
+        // 初始化禁用按钮
+        document.getElementById('salaryBtn').disabled = true;
+        document.getElementById('companyBtn').disabled = true;
+    </script>
+</body>
+</html>
